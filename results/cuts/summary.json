@@ -1,0 +1,22 @@
+{
+  "campaign": "cuts",
+  "case_count": 32,
+  "distinct_prefix_count": 1225,
+  "measurements": {
+    "cpu_seconds": 1.026485,
+    "peak_rss_kib": 118520,
+    "wall_seconds": 1.026578137999877
+  },
+  "mismatch_count": 0,
+  "mismatches": [],
+  "original_assignment_count": 5040,
+  "prefix_visit_count": 9308,
+  "residual_assignment_count": 9308,
+  "residual_policy_check_count": 1225,
+  "selection": {
+    "graph_shapes": 8,
+    "interface_families": 4,
+    "start": 0,
+    "stop": 32
+  }
+}

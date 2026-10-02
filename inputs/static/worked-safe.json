@@ -1,0 +1,136 @@
+{
+  "id": "worked-static-safe",
+  "metadata": {
+    "interface": 1,
+    "shape": 6,
+    "small": true,
+    "width": 1
+  },
+  "nodes": [
+    {
+      "data": [],
+      "delays": {
+        "p": [
+          0,
+          1
+        ],
+        "q": [
+          0,
+          1
+        ]
+      },
+      "epoch": 0,
+      "gates": [
+        "p",
+        "q"
+      ],
+      "location": "logical",
+      "name": "bar",
+      "op": "barrier"
+    },
+    {
+      "data": [
+        "p",
+        "q"
+      ],
+      "delays": {
+        "bar": [
+          0,
+          1
+        ],
+        "p": [
+          0,
+          1
+        ],
+        "q": [
+          0,
+          1
+        ]
+      },
+      "epoch": 0,
+      "gates": [
+        "bar"
+      ],
+      "location": "logical",
+      "name": "x",
+      "op": "pair"
+    }
+  ],
+  "origins": [
+    "a",
+    "b"
+  ],
+  "outputs": [
+    {
+      "deadline": 4,
+      "key": "result",
+      "node": "x",
+      "term": "pair(src(a),src(b))"
+    }
+  ],
+  "ports": [
+    {
+      "name": "p",
+      "term": "src(a)"
+    },
+    {
+      "name": "q",
+      "term": "src(b)"
+    }
+  ],
+  "zones": [
+    {
+      "bounds": {
+        "b_a": [
+          -1,
+          0
+        ],
+        "b_b": [
+          -1,
+          0
+        ],
+        "r_p": [
+          0,
+          1
+        ],
+        "r_q": [
+          0,
+          1
+        ]
+      },
+      "constraints": [
+        [
+          "b_a",
+          "b_b",
+          1
+        ],
+        [
+          "b_b",
+          "b_a",
+          1
+        ],
+        [
+          "r_p",
+          "b_a",
+          0
+        ],
+        [
+          "r_q",
+          "b_b",
+          0
+        ],
+        [
+          "r_p",
+          "b_a",
+          0
+        ],
+        [
+          "r_q",
+          "b_b",
+          0
+        ]
+      ],
+      "name": "birth-near"
+    }
+  ]
+}

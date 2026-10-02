@@ -1,0 +1,5 @@
+name,scholarly_or_official_url,license,access_date,resource_type,acquisition_method,integration_mode,supported_claim,internals_modified
+Python standard library,https://docs.python.org/3/,Python Software Foundation License,2026-09-15,software,preinstalled runtime,execution dependency,"checker, oracle, tests, and reproduction",no
+ACM acmart class,https://www.acm.org/publications/proceedings-template,LaTeX Project Public License 1.3c,2026-09-15,publisher template,user-supplied TEMPLATE.zip,copied unmodified into paper/,"venue-compatible internal typesetting",no
+ACM Reference Format bibliography style,https://www.acm.org/publications/proceedings-template,LaTeX Project Public License 1.3c,2026-09-15,publisher template,user-supplied TEMPLATE.zip,copied unmodified into paper/,"bibliography formatting",no
+Gallifrey full text,https://doi.org/10.4230/LIPIcs.SNAPL.2019.11,CC BY 3.0,2026-09-15,scholarly publication,public Dagstuhl record and PDF,read and cited,"research origin and boundary",no

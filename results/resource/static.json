@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "ftypes.experiments",
+    "--out",
+    "/mnt/data/work_final/canonical-campaign/results/static"
+  ],
+  "cpu_seconds": 0.932704,
+  "exit_status": 0,
+  "limits": {
+    "address_space_bytes": 3221225472,
+    "cpu_seconds": 40,
+    "cpus": 1,
+    "wall_seconds": 45
+  },
+  "peak_rss_kib": 96164,
+  "timed_out": false,
+  "wall_seconds": 0.9881821890003266
+}

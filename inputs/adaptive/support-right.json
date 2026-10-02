@@ -1,0 +1,86 @@
+{
+  "id": "adaptive-g0-n01",
+  "metadata": {
+    "bits": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "group": 0,
+    "index": 1
+  },
+  "nodes": [],
+  "origins": [
+    "a",
+    "b"
+  ],
+  "outputs": [
+    {
+      "deadline": 128,
+      "key": "payload",
+      "node": "p",
+      "term": "src(a)"
+    }
+  ],
+  "ports": [
+    {
+      "name": "p",
+      "term": "src(a)"
+    },
+    {
+      "name": "q",
+      "term": "src(b)"
+    }
+  ],
+  "zones": [
+    {
+      "bounds": {
+        "b_a": [
+          -2,
+          0
+        ],
+        "b_b": [
+          -2,
+          0
+        ],
+        "r_p": [
+          0,
+          2
+        ],
+        "r_q": [
+          0,
+          2
+        ]
+      },
+      "constraints": [
+        [
+          "zero",
+          "r_p",
+          1
+        ],
+        [
+          "b_a",
+          "r_p",
+          2
+        ],
+        [
+          "b_b",
+          "r_q",
+          1
+        ],
+        [
+          "r_p",
+          "b_a",
+          0
+        ],
+        [
+          "r_q",
+          "b_b",
+          0
+        ]
+      ],
+      "name": "adaptive-0-1"
+    }
+  ]
+}

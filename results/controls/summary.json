@@ -1,0 +1,14 @@
+{
+  "campaign": "controls",
+  "matrix_cell_witness_count": 324,
+  "matrix_instance_count": 81,
+  "matrix_mismatch_count": 0,
+  "measurements": {
+    "cpu_seconds": 0.04201000000000005,
+    "peak_rss_kib": 93728,
+    "wall_seconds": 0.042022239999823796
+  },
+  "mismatches": [],
+  "named_control_count": 12,
+  "named_control_failures": []
+}

@@ -1,0 +1,12 @@
+{"evidence":{"gated_ages":[2,4],"own_ages":[[2,2],[2,2]]},"name":"own-age-scalar","passed":true}
+{"evidence":{"data_only_age":0,"incorrect_control_import_age":100},"name":"control-lineage","passed":true}
+{"evidence":{"absolute_age":4,"incorrect_unshifted_birth_age":3,"rebased_age":4},"name":"epoch-birth-rebase","passed":true}
+{"evidence":{"cut":0,"delay":[0,1],"sender":0,"unreceived_residual":[1,1]},"name":"strict-cut-lower-bound","passed":true}
+{"evidence":{"aliased":[[1,1],[2,2]],"independent":[[1,1],[1,2],[2,1],[2,2]]},"name":"distinct-crossing-messages","passed":true}
+{"evidence":{"coupled_max":1,"rectangular_max":2},"name":"coupled-delay-all-upper","passed":true}
+{"evidence":{"cycle":["x->y","y->x"],"first_firing_exists":false},"name":"cyclic-progress","passed":true}
+{"evidence":{"adaptive_max":[5,2],"static_max":[2,2]},"name":"static-versus-adaptive","passed":true}
+{"evidence":{"conditional_at_zero":[2,0],"same_static_profile":2},"name":"zero-column-envelope","passed":true}
+{"evidence":{"left_birth_ages":[2,0],"opaque_oldest":2,"right_birth_ages":[0,2]},"name":"opaque-payload-origin-swap","passed":true}
+{"evidence":{"omega_minus_gamma":[[0,-1]]},"name":"birth-visible-inclusion","passed":true}
+{"evidence":{"minimal_incomparable_points":8,"n":3,"required_zones":8},"name":"receipt-blind-zone-cover","passed":true}
