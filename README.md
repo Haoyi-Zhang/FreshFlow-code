@@ -109,7 +109,6 @@ A successful command proves that the shipped program accepted its input under th
 
 ## Artificial-intelligence use
 
-A generative AI system was used substantively in research design, mathematical proof development, implementation, deterministic case construction, validation, analysis, literature synthesis, and manuscript drafting. The named human authors remain responsible for checking every claim and satisfying any venue authorship and disclosure policy before external use. This repository is an internal research artifact and does not represent an external submission.
 
 ## License
 
