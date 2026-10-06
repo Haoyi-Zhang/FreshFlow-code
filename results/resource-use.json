@@ -1,96 +1,9 @@
 {
-  "cumulative_cpu_seconds": 5.038591,
-  "cumulative_wall_seconds": 5.173195124999893,
-  "failed_command_count": 0,
-  "peak_rss_kib": 118648,
-  "records": [
+  "runs": [
     {
       "command": [
-        "python",
-        "-m",
-        "ftypes.adaptive_experiments",
-        "--out",
-        "/mnt/data/work_final/canonical-campaign/results/adaptive"
-      ],
-      "cpu_seconds": 1.1028099999999998,
-      "exit_status": 0,
-      "limits": {
-        "address_space_bytes": 3221225472,
-        "cpu_seconds": 40,
-        "cpus": 1,
-        "wall_seconds": 45
-      },
-      "name": "adaptive",
-      "peak_rss_kib": 104232,
-      "timed_out": false,
-      "wall_seconds": 1.1216123549997974
-    },
-    {
-      "command": [
-        "python",
-        "-m",
-        "ftypes.validation",
-        "--out",
-        "/mnt/data/work_final/canonical-campaign/results/controls"
-      ],
-      "cpu_seconds": 0.602672,
-      "exit_status": 0,
-      "limits": {
-        "address_space_bytes": 3221225472,
-        "cpu_seconds": 40,
-        "cpus": 1,
-        "wall_seconds": 45
-      },
-      "name": "controls",
-      "peak_rss_kib": 93856,
-      "timed_out": false,
-      "wall_seconds": 0.620071218999783
-    },
-    {
-      "command": [
-        "python",
-        "-m",
-        "ftypes.residual_experiments",
-        "--out",
-        "/mnt/data/work_final/canonical-campaign/results/cuts"
-      ],
-      "cpu_seconds": 1.713788,
-      "exit_status": 0,
-      "limits": {
-        "address_space_bytes": 3221225472,
-        "cpu_seconds": 40,
-        "cpus": 1,
-        "wall_seconds": 45
-      },
-      "name": "cuts",
-      "peak_rss_kib": 118648,
-      "timed_out": false,
-      "wall_seconds": 1.7237067639998713
-    },
-    {
-      "command": [
-        "python",
-        "-m",
-        "ftypes.experiments",
-        "--out",
-        "/mnt/data/work_final/canonical-campaign/results/static"
-      ],
-      "cpu_seconds": 0.932704,
-      "exit_status": 0,
-      "limits": {
-        "address_space_bytes": 3221225472,
-        "cpu_seconds": 40,
-        "cpus": 1,
-        "wall_seconds": 45
-      },
-      "name": "static",
-      "peak_rss_kib": 96164,
-      "timed_out": false,
-      "wall_seconds": 0.9881821890003266
-    },
-    {
-      "command": [
-        "python",
+        "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
         "-m",
         "unittest",
         "discover",
@@ -98,20 +11,109 @@
         "tests",
         "-v"
       ],
-      "cpu_seconds": 0.6866169999999999,
+      "cpu_seconds": null,
       "exit_status": 0,
+      "limit_mode": "portable-wall-time-only",
       "limits": {
-        "address_space_bytes": 3221225472,
-        "cpu_seconds": 40,
-        "cpus": 1,
+        "address_space_bytes": null,
+        "cpu_seconds": null,
+        "cpus": null,
         "wall_seconds": 45
       },
-      "name": "tests",
-      "peak_rss_kib": 94888,
+      "peak_rss_kib": null,
       "timed_out": false,
-      "wall_seconds": 0.7196225980001145
+      "wall_seconds": 0.4160805999999866
+    },
+    {
+      "command": [
+        "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "ftypes.experiments",
+        "--out",
+        "results/static"
+      ],
+      "cpu_seconds": null,
+      "exit_status": 0,
+      "limit_mode": "portable-wall-time-only",
+      "limits": {
+        "address_space_bytes": null,
+        "cpu_seconds": null,
+        "cpus": null,
+        "wall_seconds": 45
+      },
+      "peak_rss_kib": null,
+      "timed_out": false,
+      "wall_seconds": 2.60745859999588
+    },
+    {
+      "command": [
+        "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "ftypes.adaptive_experiments",
+        "--out",
+        "results/adaptive"
+      ],
+      "cpu_seconds": null,
+      "exit_status": 0,
+      "limit_mode": "portable-wall-time-only",
+      "limits": {
+        "address_space_bytes": null,
+        "cpu_seconds": null,
+        "cpus": null,
+        "wall_seconds": 45
+      },
+      "peak_rss_kib": null,
+      "timed_out": false,
+      "wall_seconds": 1.5292551999955322
+    },
+    {
+      "command": [
+        "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "ftypes.residual_experiments",
+        "--out",
+        "results/cuts"
+      ],
+      "cpu_seconds": null,
+      "exit_status": 0,
+      "limit_mode": "portable-wall-time-only",
+      "limits": {
+        "address_space_bytes": null,
+        "cpu_seconds": null,
+        "cpus": null,
+        "wall_seconds": 45
+      },
+      "peak_rss_kib": null,
+      "timed_out": false,
+      "wall_seconds": 2.564049200002046
+    },
+    {
+      "command": [
+        "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "ftypes.validation",
+        "--out",
+        "results/controls"
+      ],
+      "cpu_seconds": null,
+      "exit_status": 0,
+      "limit_mode": "portable-wall-time-only",
+      "limits": {
+        "address_space_bytes": null,
+        "cpu_seconds": null,
+        "cpus": null,
+        "wall_seconds": 45
+      },
+      "peak_rss_kib": null,
+      "timed_out": false,
+      "wall_seconds": 0.20171950000076322
     }
   ],
-  "schema": "freshness-resource-use-1",
-  "worker_policy": "Each scientific subprocess is pinned to one available CPU."
+  "total_wall_seconds": 7.318563099994208,
+  "total_cpu_seconds": null,
+  "limit_mode": "portable-wall-time-only"
 }

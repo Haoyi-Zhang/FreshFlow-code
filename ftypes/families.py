@@ -115,6 +115,7 @@ def static_cases() -> Iterable[Case]:
         for shape in range(8):
             for width in range(2):
                 yield make_case(interface, shape, width)
+    yield from supplemental_cases()
 
 
 def cut_cases() -> Iterable[Case]:
@@ -123,6 +124,39 @@ def cut_cases() -> Iterable[Case]:
         for shape in range(8):
             number += 1
             yield make_case(interface, shape, 1, small=True, case_id=f"cut-{number:02d}-i{interface}-g{shape}")
+    yield from supplemental_cases()
+
+
+def supplemental_cases() -> Iterable[Case]:
+    """Four explicit tiny cases, not additional Cartesian family dimensions."""
+    opaque = make_case(0, 1, 1, small=True).to_spec()
+    opaque["id"] = "supplement-opaque"
+    opaque["ports"][0]["term"] = "pair(src(a),src(b))"
+    opaque["ports"][1]["term"] = "unit"
+    opaque["outputs"][0]["term"] = "pair(src(a),src(b))"
+    opaque["metadata"] = {"supplement": "opaque-pair-and-unit-gate"}
+    yield case_from_spec(opaque)
+    negative = make_case(0, 2, 1, small=True).to_spec()
+    negative["id"] = "supplement-negative-cross"
+    negative["zones"] = [_zone("future-birth", overrides={"b_a": [0, 0], "b_b": [1, 1], "r_p": [0, 0], "r_q": [1, 1]})]
+    negative["metadata"] = {"supplement": "negative-cross-p-b"}
+    yield case_from_spec(negative)
+    nested = make_case(0, 2, 1, small=True).to_spec()
+    nested["id"] = "supplement-nested-multikey"
+    nested["nodes"][0]["name"] = "u"
+    nested["nodes"].append({"name": "x", "op": "pair", "data": ["u", "p"], "gates": [],
+                            "delays": {"u": [0, 1], "p": [0, 1]}})
+    nested["outputs"] = [{"key": "early", "node": "p", "term": "src(a)", "deadline": 128},
+                         {"key": "middle", "node": "u", "term": "pair(src(a),src(b))", "deadline": 128},
+                         {"key": "result", "node": "x", "term": "pair(pair(src(a),src(b)),src(a))", "deadline": 128}]
+    nested["metadata"] = {"supplement": "nested-pair-three-keys"}
+    yield case_from_spec(nested)
+    trailing = make_case(0, 0, 1, small=True).to_spec()
+    trailing["id"] = "supplement-nonoutput-tail"
+    trailing["nodes"] = [{"name": "tail", "op": "barrier", "data": [], "gates": ["q"], "delays": {"q": [1, 2]}}]
+    trailing["outputs"] = [{"key": "early", "node": "p", "term": "src(a)", "deadline": 128}]
+    trailing["metadata"] = {"supplement": "output-complete-with-pending-nonoutput-receipt"}
+    yield case_from_spec(trailing)
 
 
 def adaptive_interface(group: int, index: int) -> Case:

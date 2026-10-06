@@ -148,6 +148,12 @@ def oracle_summary(case: Case, *, cap: int = 2_000_000) -> dict:
 
 
 def prefix_of(execution: Execution, cut: int) -> tuple:
+    """Birth-blind age-erased prefix: event and receipt identities/times.
+
+    Completed output keys/terms/times are determined by these events and fixed
+    graph metadata. Past output ages are intentionally NOT conditioning facts.
+    Future observations below still retain exact ages and original births.
+    """
     events = tuple((name, time) for name, time in execution.event_times if time <= cut)
     receipts = tuple((edge, time) for edge, time in execution.receipt_times if time <= cut)
     return (cut, events, receipts)

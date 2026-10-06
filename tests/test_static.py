@@ -5,6 +5,7 @@ import unittest
 
 from ftypes.families import make_case
 from ftypes.kernel import CertificateError
+from ftypes.model import case_from_spec
 from ftypes.semantics import oracle_summary
 from ftypes.static import check_case, infer_case
 
@@ -29,11 +30,18 @@ class StaticAnalysis(unittest.TestCase):
 
     def test_threshold_below_rejects(self):
         age = self.cert["outputs"][0]["exact_worst_age"]
-        self.assertFalse(age <= max(0, age - 1))
+        spec = self.case.to_spec()
+        spec["outputs"][0]["deadline"] = max(0, age - 1)
+        case = case_from_spec(spec)
+        self.assertFalse(check_case(case, infer_case(case))["admitted"])
+        self.assertGreater(oracle_summary(case)["worst_age"]["result"], case.outputs[0].deadline)
 
     def test_threshold_equal_accepts(self):
         age = self.cert["outputs"][0]["exact_worst_age"]
-        self.assertTrue(age <= age)
+        spec = self.case.to_spec()
+        spec["outputs"][0]["deadline"] = age
+        case = case_from_spec(spec)
+        self.assertTrue(check_case(case, infer_case(case))["admitted"])
 
     def test_mutated_profile_rejected(self):
         bad = deepcopy(self.cert)

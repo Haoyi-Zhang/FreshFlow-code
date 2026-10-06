@@ -63,12 +63,19 @@ def replay_refinement(left: Case, right: Case, certificate: dict) -> dict:
 
         reason = certificate.get("reason")
         witness = certificate.get("witness")
+        if not isinstance(witness, dict):
+            raise AdaptiveCertificateError("missing rejection witness")
+        observed = witness.get("readiness")
+        if not isinstance(observed, dict) or set(observed) != set(ready) or any(type(v) is not int for v in observed.values()):
+            raise AdaptiveCertificateError("witness readiness must be a complete integer vector")
         if reason == "support":
             i, j = witness.get("i"), witness.get("j")
             if i not in ready or j not in ready:
                 raise AdaptiveCertificateError("bad support witness variables")
             if not dl[il[i]][il[j]] > dr[ir[i]][ir[j]]:
                 raise AdaptiveCertificateError("support witness is not separating")
+            if any(type(witness.get(field)) is not int for field in ("left_bound", "right_bound")) or witness.get("left_bound") != dl[il[i]][il[j]] or witness.get("right_bound") != dr[ir[i]][ir[j]]:
+                raise AdaptiveCertificateError("reported support bounds mismatch")
             potential = certificate["left_closure"]["potentials"][i]
             readiness = {v: potential[il[v]] for v in ready}
             if witness.get("readiness") != readiness:
@@ -76,12 +83,14 @@ def replay_refinement(left: Case, right: Case, certificate: dict) -> dict:
             if readiness[j] - readiness[i] <= dr[ir[i]][ir[j]]:
                 raise AdaptiveCertificateError("support witness does not violate right support")
         elif reason == "row-cover":
+            if not support_ok:
+                raise AdaptiveCertificateError("row rejection requires support inclusion")
             port_name = witness.get("port")
             source = witness.get("left_origin")
             if port_name not in left.port_map or source not in lineage(left.port_map[port_name].term):
                 raise AdaptiveCertificateError("bad row-cover witness metadata")
             columns = witness.get("separating_columns")
-            if not isinstance(columns, dict):
+            if not isinstance(columns, dict) or set(columns) != set(lineage(left.port_map[port_name].term)):
                 raise AdaptiveCertificateError("missing separating columns")
             for target in sorted(lineage(left.port_map[port_name].term)):
                 column = columns.get(target)
@@ -103,11 +112,51 @@ def replay_refinement(left: Case, right: Case, certificate: dict) -> dict:
         else:
             raise AdaptiveCertificateError("unknown rejection reason")
         separator = certificate.get("separator")
-        if not isinstance(separator, dict) or separator.get("left_special_age", 0) <= separator.get("deadline", 0):
-            raise AdaptiveCertificateError("separator does not make the left side stale")
-        if reason == "row-cover" and separator.get("right_special_age", 10**30) > separator.get("deadline"):
-            raise AdaptiveCertificateError("separator is stale on the right")
-        return {"accepted": False, "reason": reason, "witness": witness}
+        fields = {"port", "readiness", "deadline", "special_wait", "left_special_age", "right_special_age",
+                  "branch_observable", "special_reachable_right", "left_valuation", "payload_term", "emission_time"}
+        if not isinstance(separator, dict) or set(separator) != fields:
+            raise AdaptiveCertificateError("separator fields incomplete or unknown")
+        port_name = separator["port"]
+        if port_name not in left.port_map or not lineage(left.port_map[port_name].term):
+            raise AdaptiveCertificateError("separator payload is not data-bearing")
+        if reason == "row-cover" and port_name != witness["port"]:
+            raise AdaptiveCertificateError("separator selects the wrong witnessed payload")
+        if not isinstance(separator["readiness"], dict) or any(type(v) is not int for v in separator["readiness"].values()) or separator["readiness"] != readiness:
+            raise AdaptiveCertificateError("separator readiness differs from witness")
+        if separator["branch_observable"] is not True or separator["special_reachable_right"] is not (reason == "row-cover"):
+            raise AdaptiveCertificateError("separator branch metadata mismatch")
+        sources = lineage(left.port_map[port_name].term)
+        def payload_k(matrix, index):
+            return max(min(matrix[index[f"b_{s}"]][index[v]] - readiness[v] for v in ready) for s in sources)
+        left_k = payload_k(dl, il)
+        right_k = payload_k(dr, ir) if reason == "row-cover" else None
+        baseline = 1 + max(dr[ir[f"b_{s}"]][ir[f"r_{q.name}"]] for q in right.ports for s in sources)
+        time = max(readiness[f"r_{p.name}"] for p in left.ports)
+        wait = max(0, baseline - time - left_k + 1) if reason == "support" else baseline - time - right_k
+        expected = {"deadline": baseline, "special_wait": wait, "left_special_age": time + wait + left_k,
+                    "emission_time": time + wait, "payload_term": format_term(left.port_map[port_name].term),
+                    "right_special_age": None if right_k is None else time + wait + right_k}
+        for field, value in expected.items():
+            if separator[field] != value or (type(value) is int and type(separator[field]) is not int):
+                raise AdaptiveCertificateError(f"separator {field} does not follow from input clocks")
+        if wait < 0 or expected["left_special_age"] <= baseline:
+            raise AdaptiveCertificateError("separator not a stale nonnegative-wait left execution")
+        valuation = separator["left_valuation"]
+        if not isinstance(valuation, dict) or set(valuation) != set(left.variables) or any(type(x) is not int for x in valuation.values()):
+            raise AdaptiveCertificateError("separator needs complete integer birth/readiness valuation")
+        if valuation["zero"] != 0 or any(valuation[v] != readiness[v] for v in ready):
+            raise AdaptiveCertificateError("separator valuation readiness/gauge mismatch")
+        if any(valuation[e.v] - valuation[e.u] > e.c for e in left.zones[0].all_edges):
+            raise AdaptiveCertificateError("separator valuation violates original left zone")
+        age = time + wait - min(valuation[f"b_{s}"] for s in sources)
+        if age != expected["left_special_age"]:
+            raise AdaptiveCertificateError("separator full witness does not attain the reported age")
+        # Ordinary right branches have age <= B-1 by the exact closed-cell
+        # maximum; exceptional right branches have age <= T+D+K == B.
+        if right_k is not None and expected["right_special_age"] > baseline:
+            raise AdaptiveCertificateError("separator exceptional right branch is stale")
+        return {"accepted": False, "reason": reason, "witness": witness,
+                "separator_checked": True, "right_ordinary_age_bound": baseline - 1}
     except (KeyError, TypeError, ZoneError) as exc:
         if isinstance(exc, AdaptiveCertificateError):
             raise

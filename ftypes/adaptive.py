@@ -64,12 +64,8 @@ def _support_points(case: Case) -> list[dict[str, int]]:
 def _separator(left: Case, right: Case, reason: str, witness_r: dict[str, int], port_name: str) -> dict:
     right_closure = right.zones[0].close()
     left_closure = left.zones[0].close()
-    right_points = _support_points(right)
-    baseline = 1 + max(
-        max(r[f"r_{p.name}"] for p in right.ports)
-        + _conditional_k(right, right_closure, port_name, r)
-        for r in right_points
-    )
+    baseline = 1 + max(right_closure.bound(f"b_{s}", f"r_{q.name}")
+                       for q in right.ports for s in lineage(right.port_map[port_name].term))
     time = max(witness_r[f"r_{p.name}"] for p in left.ports)
     left_k = _conditional_k(left, left_closure, port_name, witness_r)
     if reason == "support":
@@ -80,6 +76,11 @@ def _separator(left: Case, right: Case, reason: str, witness_r: dict[str, int], 
         wait = baseline - time - right_k
         if wait < 0:
             raise AssertionError("separator delay should be nonnegative")
+    ready = _readiness_variables(left)
+    # Simultaneous minimal extension at the public readiness vector attains
+    # the whole-payload oldest birth, including support-rejection witnesses.
+    valuation = {v: max(witness_r[i] - left_closure.bound(v, i) for i in ready)
+                 for v in left.variables}
     return {
         "port": port_name,
         "readiness": witness_r,
@@ -87,7 +88,11 @@ def _separator(left: Case, right: Case, reason: str, witness_r: dict[str, int], 
         "special_wait": wait,
         "left_special_age": time + wait + left_k,
         "right_special_age": None if right_k is None else time + wait + right_k,
-        "branch_observable": reason != "support",
+        "branch_observable": True,
+        "special_reachable_right": reason != "support",
+        "left_valuation": valuation,
+        "payload_term": format_term(left.port_map[port_name].term),
+        "emission_time": time + wait,
     }
 
 
@@ -177,35 +182,7 @@ def check_refinement(left: Case, right: Case, certificate: dict) -> dict:
 
 
 def oracle_refinement(left: Case, right: Case) -> dict:
-    """Finite exhaustive oracle for the A1 support-and-envelope condition."""
-    _check_pair(left, right)
-    left_closure = left.zones[0].close()
-    right_closure = right.zones[0].close()
-    left_points = _support_points(left)
-    right_points = _support_points(right)
-    right_keys = {tuple(r[v] for v in _readiness_variables(right)): r for r in right_points}
-    violation = None
-    cells = 0
-    for r in left_points:
-        key = tuple(r[v] for v in _readiness_variables(left))
-        if key not in right_keys:
-            violation = {"reason": "support", "readiness": r}
-            break
-        for port in left.ports:
-            if not lineage(port.term):
-                continue
-            cells += 1
-            kl = _conditional_k(left, left_closure, port.name, r)
-            kr = _conditional_k(right, right_closure, port.name, r)
-            if kl > kr:
-                violation = {"reason": "envelope", "port": port.name, "readiness": r, "left_k": kl, "right_k": kr}
-                break
-        if violation:
-            break
-    return {
-        "accepted": violation is None,
-        "left_readiness_points": len(left_points),
-        "right_readiness_points": len(right_points),
-        "conditional_cells_checked": cells,
-        "violation": violation,
-    }
+    """Compatibility entry point; the oracle uses only raw finite constraints."""
+    from .adaptive_oracle import oracle_refinement as raw_oracle
+
+    return raw_oracle(left, right)

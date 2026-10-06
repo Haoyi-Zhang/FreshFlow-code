@@ -71,6 +71,17 @@ def residualize(case: Case, prefix: tuple, *, residual_id: str = "residual") -> 
         raise PrefixError("prefix has no feasible conditioned input zone")
 
     terms = case.terms
+    used_names = set(case.names)
+
+    def fresh_name(preferred: str) -> str:
+        stem = preferred[:70]
+        name, index = stem, 0
+        while name in used_names:
+            index += 1
+            name = f"{stem}-{index}"
+        used_names.add(name)
+        return name
+
     residual_ports: list[dict[str, Any]] = []
     uncompleted_ports = [p for p in case.ports if p.name not in events]
     for port in uncompleted_ports:
@@ -83,7 +94,7 @@ def residualize(case: Case, prefix: tuple, *, residual_id: str = "residual") -> 
             continue
         for dep in node.dependencies:
             if dep.source in events:
-                name = f"cross-{dep.source}-{node.name}"
+                name = fresh_name(f"cross-{dep.source}-{node.name}")
                 crossing[dep.edge_id] = name
                 if dep.edge_id in receipts:
                     interval = [0, 0]
@@ -95,7 +106,8 @@ def residualize(case: Case, prefix: tuple, *, residual_id: str = "residual") -> 
                     interval = [lo, hi]
                 crossing_bounds[f"r_{name}"] = interval
                 residual_ports.append({"name": name, "term": format_term(terms[dep.source])})
-    residual_ports.append({"name": "cut-clock", "term": "unit"})
+    cut_clock = fresh_name("cut-clock")
+    residual_ports.append({"name": cut_clock, "term": "unit"})
 
     residual_zones = []
     retained_old = [f"b_{s}" for s in case.origins] + [f"r_{p.name}" for p in uncompleted_ports]
@@ -107,7 +119,7 @@ def residualize(case: Case, prefix: tuple, *, residual_id: str = "residual") -> 
             upper = closure.bound("zero", variable) - cut
             bounds[variable] = [lower, upper]
         bounds.update(crossing_bounds)
-        bounds["r_cut-clock"] = [0, 0]
+        bounds[f"r_{cut_clock}"] = [0, 0]
         constraints: list[list[Any]] = []
         # Closed restriction is the exact difference-zone image after fixed-clock substitution.
         for u in retained_old:
@@ -145,11 +157,8 @@ def residualize(case: Case, prefix: tuple, *, residual_id: str = "residual") -> 
         {"key": output.key, "node": output.node, "term": format_term(output.term), "deadline": output.deadline}
         for output in case.outputs if output.node in pending
     ]
-    if not residual_outputs:
-        # A valid terminal residual is represented with an inert proof-only output on an uncompleted
-        # data port only when one exists. Campaign prefixes stop before all outputs, so this branch is
-        # used solely for malformed external calls.
-        raise PrefixError("prefix has no remaining output obligation")
+    # Empty obligations do not imply empty pending work. Keep every pending
+    # original vertex and receipt; a fully completed cut has the empty future.
     spec = {
         "id": residual_id,
         "origins": list(case.origins),
@@ -157,7 +166,8 @@ def residualize(case: Case, prefix: tuple, *, residual_id: str = "residual") -> 
         "zones": residual_zones,
         "nodes": residual_nodes,
         "outputs": residual_outputs,
-        "metadata": {"cut": cut, "source_case": case.case_id},
+        "metadata": {"cut": cut, "source_case": case.case_id,
+                     "cut_clock": cut_clock, "crossing_for_edge": crossing},
     }
     return Residual(case_from_spec(spec), cut, frozenset(events), frozenset(receipts), crossing, case)
 

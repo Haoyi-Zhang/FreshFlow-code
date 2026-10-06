@@ -1,19 +1,21 @@
 {
   "accepted_count": 319,
   "campaign": "adaptive",
-  "conditional_cell_check_count": 2674,
+  "conditional_cell_check_count": 4440,
   "full_clock_valuation_count_sum": 678,
   "group_count": 3,
   "interface_count": 48,
   "measurements": {
-    "cpu_seconds": 0.425002,
-    "peak_rss_kib": 104104,
-    "wall_seconds": 0.4250284989998363
+    "cpu_seconds": 1.265625,
+    "peak_rss_kib": null,
+    "wall_seconds": 1.334981299994979
   },
   "mismatch_count": 0,
   "mismatches": [],
   "ordered_comparison_count": 768,
   "rejected_count": 449,
   "row_cover_rejection_count": 149,
+  "separator_execution_check_count": 449,
+  "separator_right_full_valuation_check_count": 4959,
   "support_rejection_count": 300
 }

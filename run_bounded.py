@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Run one scientific command with a single-CPU, memory, CPU-time, and process bound."""
+"""Run one command with POSIX resource limits when available and a wall timeout.
+
+Windows uses the wall timeout only; its records explicitly mark other limits
+and unavailable child CPU/peak-memory measurements as null.
+"""
 from __future__ import annotations
 
 import argparse
 import json
 import os
 from pathlib import Path
-import resource
+try:
+    import resource
+except ImportError:
+    resource = None
 import subprocess
 import sys
 import time
@@ -35,24 +42,27 @@ def main() -> int:
         command = command[1:]
     if not command:
         parser.error("a command is required after --")
-    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    before = resource.getrusage(resource.RUSAGE_CHILDREN) if resource is not None else None
     wall0 = time.perf_counter()
     try:
-        completed = subprocess.run(command, preexec_fn=_limit, timeout=45, check=False)
+        kwargs = {"preexec_fn": _limit} if resource is not None and hasattr(os, "sched_getaffinity") else {}
+        completed = subprocess.run(command, timeout=45, check=False, **kwargs)
         status = completed.returncode
         timed_out = False
     except subprocess.TimeoutExpired:
         status = 124
         timed_out = True
-    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    after = resource.getrusage(resource.RUSAGE_CHILDREN) if resource is not None else None
     record = {
         "command": command,
         "exit_status": status,
         "timed_out": timed_out,
-        "cpu_seconds": (after.ru_utime + after.ru_stime) - (before.ru_utime + before.ru_stime),
+        "cpu_seconds": None if after is None else (after.ru_utime + after.ru_stime) - (before.ru_utime + before.ru_stime),
         "wall_seconds": time.perf_counter() - wall0,
-        "peak_rss_kib": after.ru_maxrss,
-        "limits": {"cpus": 1, "address_space_bytes": 3 * 1024**3, "cpu_seconds": 40, "wall_seconds": 45},
+        "peak_rss_kib": None if after is None else after.ru_maxrss,
+        "limits": {"cpus": 1 if kwargs else None, "address_space_bytes": 3 * 1024**3 if kwargs else None,
+                   "cpu_seconds": 40 if kwargs else None, "wall_seconds": 45},
+        "limit_mode": "posix-resource" if kwargs else "portable-wall-time-only",
     }
     args.record.parent.mkdir(parents=True, exist_ok=True)
     args.record.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")

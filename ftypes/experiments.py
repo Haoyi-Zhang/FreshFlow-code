@@ -2,18 +2,22 @@
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 from pathlib import Path
-import resource
+from . import measurements as resource
 import time
 
 from .families import static_cases
 from .io import write_json, write_jsonl
-from .semantics import oracle_summary
+from .model import case_from_spec
+from .semantics import execute, oracle_summary
 from .static import check_case, infer_case
 
 
-def run(out: Path, start: int = 0, stop: int = 128, pilot: bool = False) -> dict:
+def run(out: Path, start: int = 0, stop: int | None = None, pilot: bool = False) -> dict:
     cases = list(static_cases())
+    if stop is None:
+        stop = len(cases)
     if pilot:
         start, stop = 0, min(4, len(cases))
     if not (0 <= start <= stop <= len(cases)):
@@ -27,6 +31,8 @@ def run(out: Path, start: int = 0, stop: int = 128, pilot: bool = False) -> dict
     assignment_count = 0
     valuation_count = 0
     threshold_decisions = 0
+    threshold_rows = []
+    threshold_assignments = 0
     mismatches = []
     for case in chosen:
         certificate = infer_case(case)
@@ -49,8 +55,30 @@ def run(out: Path, start: int = 0, stop: int = 128, pilot: bool = False) -> dict
                 mismatches.append({"case": case.case_id, "kind": "term", "key": key})
             for deadline in (max(0, exact - 1), exact, exact + 1):
                 threshold_decisions += 1
-                predicted = exact <= deadline
-                actual = oracle["worst_age"][key] <= deadline
+                spec = deepcopy(case.to_spec())
+                spec["id"] = f"query-{case.case_id}-{key}-{deadline}"
+                for policy in spec["outputs"]:
+                    if policy["key"] == key:
+                        policy["deadline"] = deadline
+                query = case_from_spec(spec)
+                query_cert = infer_case(query)
+                query_replay = check_case(query, query_cert)
+                query_oracle = oracle_summary(query)
+                threshold_assignments += query_oracle["assignment_count"]
+                predicted = query_replay["admitted"]
+                actual = all(query_oracle["worst_age"][o.key] <= o.deadline
+                             and query_oracle["output_terms"][o.key] == [oitem["expected_term"]]
+                             for o, oitem in zip(query.outputs, query_cert["outputs"]))
+                stale_execution = None
+                if not actual:
+                    w = query_oracle["witnesses"][key]
+                    execution = execute(query, w["valuation"], w["delays"])
+                    stale_execution = {"valuation": dict(execution.valuation), "delays": dict(execution.delays),
+                                       "events": list(execution.event_times), "receipts": list(execution.receipt_times),
+                                       "outputs": list(execution.outputs)}
+                threshold_rows.append({"input": query.to_spec(), "certificate": query_cert, "replay": query_replay,
+                                       "oracle_admitted": actual, "oracle_assignment_count": query_oracle["assignment_count"],
+                                       "stale_execution": stale_execution})
                 if predicted != actual:
                     mismatches.append({"case": case.case_id, "kind": "threshold", "deadline": deadline})
         if replay["admitted"] != certificate["admitted"]:
@@ -65,11 +93,14 @@ def run(out: Path, start: int = 0, stop: int = 128, pilot: bool = False) -> dict
             "delay_widths": 2,
             "start": start,
             "stop": stop,
+            "supplemental_cases": 4,
+            "base_domain": "singleton two-port, one-output; supplement covers opaque, negative cross, nested multi-key and nonoutput work",
         },
         "case_count": len(chosen),
         "valuation_count_sum": valuation_count,
         "input_delay_assignment_count": assignment_count,
         "threshold_decision_count": threshold_decisions,
+        "threshold_input_delay_assignment_count": threshold_assignments,
         "mismatch_count": len(mismatches),
         "mismatches": mismatches,
         "measurements": {
@@ -82,6 +113,7 @@ def run(out: Path, start: int = 0, stop: int = 128, pilot: bool = False) -> dict
     write_jsonl(out / "cases.jsonl", case_rows)
     write_jsonl(out / "certificates.jsonl", certificate_rows)
     write_jsonl(out / "oracle.jsonl", oracle_rows)
+    write_jsonl(out / "thresholds.jsonl", threshold_rows)
     write_json(out / "summary.json", summary)
     return summary
 
@@ -90,7 +122,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--start", type=int, default=0)
-    parser.add_argument("--stop", type=int, default=128)
+    parser.add_argument("--stop", type=int)
     parser.add_argument("--pilot", action="store_true")
     args = parser.parse_args()
     summary = run(args.out, args.start, args.stop, args.pilot)

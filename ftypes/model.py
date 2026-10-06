@@ -167,6 +167,8 @@ def case_from_spec(spec: dict[str, Any]) -> Case:
     variables = ("zero",) + tuple(f"b_{s}" for s in origins) + tuple(f"r_{p.name}" for p in ports)
     causality: list[tuple[str, str, int]] = []
     for p in ports:
+        # Readiness is relative to the current boundary, not a birth clock.
+        causality.append((f"r_{p.name}", "zero", 0))
         for s in sorted(lineage(p.term)):
             # b_s <= r_p  is b_s-r_p <= 0.
             causality.append((f"r_{p.name}", f"b_{s}", 0))
@@ -241,8 +243,8 @@ def case_from_spec(spec: dict[str, Any]) -> Case:
             terms[node.name] = ("unit",)
 
     outputs_raw = spec.get("outputs")
-    if not isinstance(outputs_raw, list) or not outputs_raw or len(outputs_raw) > MAX_ITEMS:
-        raise ModelError("outputs must be a nonempty bounded list")
+    if not isinstance(outputs_raw, list) or len(outputs_raw) > MAX_ITEMS:
+        raise ModelError("outputs must be a bounded list (possibly empty)")
     outputs: list[Output] = []
     for item in outputs_raw:
         if not isinstance(item, dict) or set(item) != {"key", "node", "term", "deadline"}:

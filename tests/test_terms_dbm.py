@@ -69,7 +69,7 @@ class TermsAndZones(unittest.TestCase):
         }
         case = case_from_spec(spec)
         self.assertEqual(
-            tuple((edge.u, edge.v, edge.c) for edge in case.zones[0].constraints[:2]),
+            tuple((edge.u, edge.v, edge.c) for edge in case.zones[0].constraints[1:3]),
             (("r_p", "b_a", 0), ("r_p", "b_b", 0)),
         )
 

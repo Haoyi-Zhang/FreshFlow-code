@@ -1,22 +1,26 @@
 {
   "campaign": "cuts",
-  "case_count": 32,
-  "distinct_prefix_count": 1225,
+  "case_count": 36,
+  "distinct_prefix_count": 2672,
+  "empty_output_prefix_count": 1363,
+  "empty_output_with_pending_work_prefix_count": 11,
   "measurements": {
-    "cpu_seconds": 1.026485,
-    "peak_rss_kib": 118520,
-    "wall_seconds": 1.026578137999877
+    "cpu_seconds": 2.09375,
+    "peak_rss_kib": null,
+    "wall_seconds": 2.2290312000041013
   },
   "mismatch_count": 0,
   "mismatches": [],
-  "original_assignment_count": 5040,
-  "prefix_visit_count": 9308,
-  "residual_assignment_count": 9308,
-  "residual_policy_check_count": 1225,
+  "original_assignment_count": 5396,
+  "prefix_visit_count": 15370,
+  "residual_assignment_count": 15370,
+  "residual_policy_check_count": 2672,
   "selection": {
     "graph_shapes": 8,
     "interface_families": 4,
+    "prefix_domain": "birth-blind age-erased event/receipt prefix; past output key/term/time derived, not age",
     "start": 0,
-    "stop": 32
+    "stop": 36,
+    "supplemental_cases": 4
   }
 }

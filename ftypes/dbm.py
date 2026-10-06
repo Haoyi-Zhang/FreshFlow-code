@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from itertools import product
 from typing import Iterable, Iterator
 
@@ -29,7 +30,7 @@ class Closure:
     dist: list[list[int]]
     paths: list[list[list[int]]]
 
-    @property
+    @cached_property
     def index(self) -> dict[str, int]:
         return {name: i for i, name in enumerate(self.variables)}
 
@@ -83,6 +84,7 @@ class Zone:
         if set(raw_bounds) - set(vars_tuple[1:]):
             raise ZoneError("zone bounds name an unknown variable")
         edges: list[Edge] = []
+        seen_edges: set[Edge] = set()
         raw_constraints = spec.get("constraints", [])
         if not isinstance(raw_constraints, list):
             raise ZoneError("constraints must be a list")
@@ -95,7 +97,10 @@ class Zone:
                 raise ZoneError("constraint names or constant invalid")
             if abs(c).bit_length() > 128:
                 raise ZoneError("constraint integer exceeds 128-bit magnitude limit")
-            edges.append(Edge(u, v, c))
+            edge = Edge(u, v, c)
+            if edge not in seen_edges:
+                edges.append(edge)
+                seen_edges.add(edge)
         if len(edges) + 2 * len(vars_tuple) > MAX_EDGES:
             raise ZoneError("too many zone constraints")
         zone = Zone(vars_tuple, bounds, tuple(edges), str(spec.get("name", "zone")))
@@ -176,12 +181,16 @@ class Zone:
 def closure_certificate(zone: Zone) -> dict:
     closure = zone.close()
     variables = list(closure.variables)
+    potentials = {}
+    for u in variables:
+        values = closure.potential(u)
+        potentials[u] = [values[v] for v in variables]
     return {
         "variables": variables,
         "edges": [[e.u, e.v, e.c] for e in closure.edges],
         "distance": closure.dist,
         "paths": closure.paths,
-        "potentials": {u: [closure.potential(u)[v] for v in variables] for u in variables},
+        "potentials": potentials,
     }
 
 

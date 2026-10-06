@@ -1,20 +1,22 @@
 {
   "command": [
-    "python",
+    "C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "-B",
     "-m",
     "ftypes.validation",
     "--out",
-    "/mnt/data/work_final/canonical-campaign/results/controls"
+    "results/controls"
   ],
-  "cpu_seconds": 0.602672,
+  "cpu_seconds": null,
   "exit_status": 0,
+  "limit_mode": "portable-wall-time-only",
   "limits": {
-    "address_space_bytes": 3221225472,
-    "cpu_seconds": 40,
-    "cpus": 1,
+    "address_space_bytes": null,
+    "cpu_seconds": null,
+    "cpus": null,
     "wall_seconds": 45
   },
-  "peak_rss_kib": 93856,
+  "peak_rss_kib": null,
   "timed_out": false,
-  "wall_seconds": 0.620071218999783
+  "wall_seconds": 0.20171950000076322
 }

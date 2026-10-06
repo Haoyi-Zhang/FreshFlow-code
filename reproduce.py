@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 from typing import Any
@@ -63,8 +62,10 @@ def main() -> int:
     parser.add_argument("--keep", action="store_true", help="do not remove an existing output directory")
     args = parser.parse_args()
     out = args.out.resolve()
+    if not out.is_relative_to(ROOT) or out == ROOT or out.is_relative_to(ROOT / "results"):
+        parser.error("reproduction output must be a separate directory inside the artifact root")
     if out.exists() and not args.keep:
-        shutil.rmtree(out)
+        parser.error("output already exists; use a new directory or --keep (no deletion is performed)")
     out.mkdir(parents=True, exist_ok=True)
 
     commands = [

@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-import resource
+from . import measurements as resource
 import time
 
 from .adaptive import check_refinement, infer_refinement, oracle_refinement
 from .families import adaptive_interfaces
 from .io import write_json, write_jsonl
-from .semantics import interface_valuations
+from .adaptive_oracle import raw_valuations, validate_separator
 
 
 def run(out: Path, pilot: bool = False) -> dict:
@@ -21,12 +21,14 @@ def run(out: Path, pilot: bool = False) -> dict:
     before = resource.getrusage(resource.RUSAGE_SELF)
     wall0 = time.perf_counter()
     comparisons = []
-    valuation_count = sum(len(interface_valuations(case)) for case in interfaces)
+    valuation_count = sum(len(raw_valuations(case)) for case in interfaces)
     accepted = 0
     rejected = 0
     support_rejections = 0
     row_rejections = 0
     conditional_cells = 0
+    separator_checks = 0
+    right_branch_checks = 0
     mismatches = []
     for group, members in groups.items():
         for left in members:
@@ -34,6 +36,7 @@ def run(out: Path, pilot: bool = False) -> dict:
                 certificate = infer_refinement(left, right)
                 replay = check_refinement(left, right, certificate)
                 oracle = oracle_refinement(left, right)
+                separator_execution = None
                 conditional_cells += oracle["conditional_cells_checked"]
                 if certificate["accepted"]:
                     accepted += 1
@@ -41,6 +44,9 @@ def run(out: Path, pilot: bool = False) -> dict:
                     rejected += 1
                     support_rejections += certificate.get("reason") == "support"
                     row_rejections += certificate.get("reason") == "row-cover"
+                    separator_execution = validate_separator(left, right, certificate)
+                    separator_checks += 1
+                    right_branch_checks += separator_execution["right_valuation_checks"]
                 if certificate["accepted"] != oracle["accepted"] or replay["accepted"] != certificate["accepted"]:
                     mismatches.append({"left": left.case_id, "right": right.case_id})
                 comparisons.append({
@@ -49,6 +55,7 @@ def run(out: Path, pilot: bool = False) -> dict:
                     "right": right.case_id,
                     "certificate": certificate,
                     "oracle": oracle,
+                    "separator_execution": separator_execution,
                 })
     after = resource.getrusage(resource.RUSAGE_SELF)
     summary = {
@@ -58,6 +65,8 @@ def run(out: Path, pilot: bool = False) -> dict:
         "ordered_comparison_count": len(comparisons),
         "full_clock_valuation_count_sum": valuation_count,
         "conditional_cell_check_count": conditional_cells,
+        "separator_execution_check_count": separator_checks,
+        "separator_right_full_valuation_check_count": right_branch_checks,
         "accepted_count": accepted,
         "rejected_count": rejected,
         "support_rejection_count": support_rejections,

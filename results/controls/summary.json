@@ -4,9 +4,9 @@
   "matrix_instance_count": 81,
   "matrix_mismatch_count": 0,
   "measurements": {
-    "cpu_seconds": 0.04201000000000005,
-    "peak_rss_kib": 93728,
-    "wall_seconds": 0.042022239999823796
+    "cpu_seconds": 0.078125,
+    "peak_rss_kib": null,
+    "wall_seconds": 0.08056740000029095
   },
   "mismatches": [],
   "named_control_count": 12,
