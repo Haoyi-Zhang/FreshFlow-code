@@ -17,6 +17,8 @@ def _metadata(left: Case, right: Case) -> None:
         raise AdaptiveCertificateError("origin mismatch")
     if [(p.name, format_term(p.term)) for p in left.ports] != [(p.name, format_term(p.term)) for p in right.ports]:
         raise AdaptiveCertificateError("port metadata mismatch")
+    if not any(lineage(p.term) for p in left.ports):
+        raise AdaptiveCertificateError("at least one data-bearing port is required")
 
 
 def replay_refinement(left: Case, right: Case, certificate: dict) -> dict:
@@ -54,12 +56,22 @@ def replay_refinement(left: Case, right: Case, certificate: dict) -> dict:
         if certificate.get("accepted") is not truth:
             raise AdaptiveCertificateError("accepted flag disagrees with replay")
         if truth:
-            if certificate.get("covers") != covers:
+            supplied = certificate.get("covers")
+            if not isinstance(supplied, dict) or set(supplied) != set(covers):
                 raise AdaptiveCertificateError("row-cover map mismatch")
+            for port_name, source_map in supplied.items():
+                sources = lineage(left.port_map[port_name].term)
+                if not isinstance(source_map, dict) or set(source_map) != set(sources):
+                    raise AdaptiveCertificateError("row-cover source map mismatch")
+                for source, target in source_map.items():
+                    if not isinstance(target, str) or target not in sources:
+                        raise AdaptiveCertificateError("cover target is outside the payload")
+                    if any(dl[il[f"b_{source}"]][il[i]] > dr[ir[f"b_{target}"]][ir[i]] for i in ready):
+                        raise AdaptiveCertificateError("supplied row does not cover the source")
             pairs = [[i, j, dl[il[i]][il[j]], dr[ir[i]][ir[j]]] for i in ready for j in ready]
             if certificate.get("readiness_pairs") != pairs:
                 raise AdaptiveCertificateError("readiness comparison mismatch")
-            return {"accepted": True, "covers": covers}
+            return {"accepted": True, "covers": supplied}
 
         reason = certificate.get("reason")
         witness = certificate.get("witness")

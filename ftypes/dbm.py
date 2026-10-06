@@ -147,12 +147,13 @@ class Zone:
 
     def enumerate(self, *, cap: int = MAX_ENUM) -> Iterator[dict[str, int]]:
         vars_nonzero = self.variables[1:]
-        ranges = [range(self.bounds[v][0], self.bounds[v][1] + 1) for v in vars_nonzero]
         volume = 1
-        for r in ranges:
-            volume *= len(r)
+        for v in vars_nonzero:
+            lo, hi = self.bounds[v]
+            volume *= hi - lo + 1
             if volume > cap:
                 raise ZoneError(f"zone enumeration volume {volume} exceeds cap {cap}")
+        ranges = [range(self.bounds[v][0], self.bounds[v][1] + 1) for v in vars_nonzero]
         edges = self.constraints
         emitted = 0
         for values in product(*ranges):

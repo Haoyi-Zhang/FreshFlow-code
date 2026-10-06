@@ -24,7 +24,7 @@ From the extracted repository root:
 python reproduce.py --out reproduced
 ```
 
-The command runs 66 unit-test methods (with additional mutation subcases) and four deterministic campaigns through `run_bounded.py`, then compares every regenerated scientific JSON/JSONL value with `results/`. Only the environment-dependent `measurements` fields inside campaign summaries are ignored. The report is `reproduced/reproduction.json`; success means `"status": "pass"`. Use a fresh output directory; an existing directory is never deleted automatically.
+The command runs 73 unit-test methods (with additional mutation and identifier subcases) and four deterministic campaigns through `run_bounded.py`, then compares every regenerated scientific JSON/JSONL value with `results/`. Only the environment-dependent `measurements` fields inside campaign summaries are ignored. The report is `reproduced/reproduction.json`; success means `"status": "pass"`. Use a fresh output directory; an existing directory is never deleted automatically. The shipped resource records belong to the prior 66-method run; they are not timings of the expanded suite.
 
 To regenerate the LaTeX data consumed by the manuscript:
 
@@ -101,7 +101,7 @@ Raw case specifications, certificates, oracles, prefixes, witnesses, and summari
 - `ftypes/adaptive_oracle.py` — tiny raw-bound full-valuation reference and actual separator branch interpreter.
 - `ftypes/residual.py` — observation validation and exact cut residualization.
 - `ftypes/*_experiments.py`, `ftypes/validation.py` — frozen deterministic campaigns and negative controls.
-- `tests/` — 66 unit-test methods and their named mutation subcases.
+- `tests/` — 73 unit-test methods and their named mutation/identifier subcases.
 - `proofs/theory.md` — complete handwritten theorem arguments and boundaries.
 - `claim_evidence_ledger.csv` — claim-to-proof/check/result mapping.
 - `external_resources.csv`, `literature.csv` — provenance and literature calibration records.
@@ -126,4 +126,8 @@ The baseline is `1 + max D_(b_s,r_q)` over all timing ports q and sources s of t
 
 Actual parser caps are 128 origins/ports/zones/nodes/outputs per list, 128 clocks, 4096 zone edges including bounds, 128-bit magnitude zone constants and delay endpoints, and term-string length 100,000/depth 128. Closure replay checks 256-bit magnitude distance cells; other derived integers, deadlines, epochs and JSON byte counts have no global magnitude/byte cap. Inferred expanded term size is an explicit cost, not a separately enforced cap. The semantic enumeration ceiling is 2,000,000 assignments; the adaptive raw Cartesian ceiling is 100,000. None is a scalability claim.
 
-The full matrix certificate uses explicit paths and potentials for every clock, not only births. Floyd--Warshall costs cubic arithmetic work with up to quartic path-index copying in the current list representation. Prefix conditioning uses that same implementation; no independent cut-certificate replay or serialized negative-cycle evidence is supplied. The cut implementation is checked by exhaustive future-set comparison. Buffered receipts become availability zero; they preserve a strictly positive pending maximum, not the original arrival multiset.
+The full matrix certificate uses explicit paths and potentials for every clock, not only births. Floyd--Warshall costs cubic arithmetic work with up to quartic path-index copying in the current list representation. Replay kernels operate on parsed cases without calling closure; the shared input parser itself closes zones, so this separation is not a closure-free command-line pipeline. Adaptive replay requires a data-bearing port and validates any feasible same-payload cover, not only the producer's first cover. Prefix conditioning uses the same closure implementation; no independent cut-certificate replay or serialized negative-cycle evidence is supplied. The cut implementation is checked by exhaustive future-set comparison. Buffered receipts become availability zero; they preserve a strictly positive pending maximum, not the original arrival multiset.
+
+Source identifiers in terms follow the model's letter-first, alphanumeric/hyphen convention, including Unicode letters. Constructor words are recognized by syntactic position rather than as identifier prefixes. Enumeration volume checks use exact integer interval widths before constructing a Cartesian product; a permitted wide interval is a resource refusal, not a host-sized range-length exception.
+
+The prepared `.github/workflows/scientific-checks.yml` runs from this flat artifact root on Ubuntu 24.04, on pushes to `main`, pull requests, or manual dispatch. It gates source integrity, full finite reproduction, and generated paper-data equality, with a 300-second whole-run wall bound, CPU/address-space limits, and raw-output upload even after failure. Preparing this workflow and executing local checks do not establish a successful GitHub run.

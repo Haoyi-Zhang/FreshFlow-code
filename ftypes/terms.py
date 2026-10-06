@@ -6,7 +6,10 @@ import re
 from typing import Iterator, TypeAlias
 
 Term: TypeAlias = tuple
-_TOKEN = re.compile(r"\s*(pair|src|unit|[A-Za-z][A-Za-z0-9-]*|[(),])")
+# Tokenize complete identifiers before interpreting constructors. Constructor
+# names are ordinary origin names inside src(...), and model names may use
+# Unicode letters/digits; neither case is a keyword-prefix token.
+_TOKEN = re.compile(r"\s*([^\W_][\w-]*|[(),])")
 
 
 class TermError(ValueError):
@@ -36,6 +39,8 @@ def _tokenize(text: str) -> list[str]:
     while at < len(text):
         match = _TOKEN.match(text, at)
         if match is None:
+            if text[at:].isspace():
+                break
             raise TermError(f"invalid term syntax near offset {at}")
         out.append(match.group(1))
         at = match.end()
@@ -54,7 +59,7 @@ def parse_term(text: str, *, max_depth: int = 128) -> Term:
         if head == "src":
             tokens.take("(")
             name = tokens.take()
-            if name in {"pair", "src", "unit", "(", ")", ","}:
+            if not name[0].isalpha() or any(not (c.isalnum() or c == "-") for c in name):
                 raise TermError("invalid origin name")
             tokens.take(")")
             return ("src", name)

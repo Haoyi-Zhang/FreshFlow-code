@@ -46,12 +46,12 @@ def interface_valuations(case: Case, *, cap: int = 2_000_000) -> list[dict[str, 
 
 def delay_assignments(case: Case, *, cap: int = 2_000_000) -> Iterator[dict[str, int]]:
     dependencies = [d for node in case.nodes for d in node.dependencies]
-    ranges = [range(d.lower, d.upper + 1) for d in dependencies]
     volume = 1
-    for r in ranges:
-        volume *= len(r)
+    for dependency in dependencies:
+        volume *= dependency.upper - dependency.lower + 1
         if volume > cap:
             raise OracleLimit("delay assignment volume exceeds cap")
+    ranges = [range(d.lower, d.upper + 1) for d in dependencies]
     if not dependencies:
         yield {}
         return
