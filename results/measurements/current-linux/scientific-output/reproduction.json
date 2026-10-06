@@ -1,0 +1,66 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_status": 0,
+      "name": "tests"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-m",
+        "ftypes.experiments",
+        "--out",
+        "/home/runner/work/FreshFlow/FreshFlow/scientific-output/static"
+      ],
+      "exit_status": 0,
+      "name": "static"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-m",
+        "ftypes.adaptive_experiments",
+        "--out",
+        "/home/runner/work/FreshFlow/FreshFlow/scientific-output/adaptive"
+      ],
+      "exit_status": 0,
+      "name": "adaptive"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-m",
+        "ftypes.residual_experiments",
+        "--out",
+        "/home/runner/work/FreshFlow/FreshFlow/scientific-output/cuts"
+      ],
+      "exit_status": 0,
+      "name": "cuts"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+        "-m",
+        "ftypes.validation",
+        "--out",
+        "/home/runner/work/FreshFlow/FreshFlow/scientific-output/controls"
+      ],
+      "exit_status": 0,
+      "name": "controls"
+    }
+  ],
+  "comparison_policy": "JSON measurements fields are ignored; every other generated value and file is compared.",
+  "failure_count": 0,
+  "failures": [],
+  "schema": "freshness-reproduction-1",
+  "status": "pass"
+}

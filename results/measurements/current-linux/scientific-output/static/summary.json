@@ -1,0 +1,24 @@
+{
+  "campaign": "static",
+  "case_count": 132,
+  "input_delay_assignment_count": 42104,
+  "measurements": {
+    "cpu_seconds": 2.34455,
+    "peak_rss_kib": 25664,
+    "wall_seconds": 2.3450767490000004
+  },
+  "mismatch_count": 0,
+  "mismatches": [],
+  "selection": {
+    "base_domain": "singleton two-port, one-output; supplement covers opaque, negative cross, nested multi-key and nonoutput work",
+    "delay_widths": 2,
+    "graph_shapes": 8,
+    "interface_families": 8,
+    "start": 0,
+    "stop": 132,
+    "supplemental_cases": 4
+  },
+  "threshold_decision_count": 402,
+  "threshold_input_delay_assignment_count": 127848,
+  "valuation_count_sum": 6865
+}

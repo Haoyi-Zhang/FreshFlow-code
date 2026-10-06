@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/opt/hostedtoolcache/Python/3.12.14/x64/bin/python",
+    "-m",
+    "ftypes.validation",
+    "--out",
+    "/home/runner/work/FreshFlow/FreshFlow/scientific-output/controls"
+  ],
+  "cpu_seconds": 0.16969099999999998,
+  "exit_status": 0,
+  "limit_mode": "posix-resource",
+  "limits": {
+    "address_space_bytes": 3221225472,
+    "cpu_seconds": 40,
+    "cpus": 1,
+    "wall_seconds": 45
+  },
+  "peak_rss_kib": 17532,
+  "timed_out": false,
+  "wall_seconds": 0.2153393440000002
+}

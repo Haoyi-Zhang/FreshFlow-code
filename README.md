@@ -26,6 +26,8 @@ python reproduce.py --out reproduced
 
 The command runs 73 unit-test methods (with additional mutation and identifier subcases) and four deterministic campaigns through `run_bounded.py`, then compares every regenerated scientific JSON/JSONL value with `results/`. Only the environment-dependent `measurements` fields inside campaign summaries are ignored. The report is `reproduced/reproduction.json`; success means `"status": "pass"`. Use a fresh output directory; an existing directory is never deleted automatically. The shipped resource records belong to the prior 66-method run; they are not timings of the expanded suite.
 
+A current Ubuntu 24.04/Python 3.12.14 execution passes all 73 methods and all four campaigns. The 14 scientific files (4,415 JSONL records) match the retained values, and both generated manuscript tables match bytewise. Current measurements and the actual test footer are in `results/measurements/current-linux/`; they do not replace the historical resource files. Each command is bounded to one core, 3 GiB address space, 40 CPU seconds and 45 wall seconds.
+
 To regenerate the LaTeX data consumed by the manuscript:
 
 ```sh
