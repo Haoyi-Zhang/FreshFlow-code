@@ -1,7 +1,7 @@
 """Certificate-producing fixed-graph freshness analysis."""
 from __future__ import annotations
 
-from .dbm import closure_certificate
+from .dbm import _certificate_from_closure
 from .model import Case
 from .terms import format_term, lineage
 
@@ -22,7 +22,7 @@ def infer_case(case: Case) -> dict:
         zones.append({
             "index": zone_index,
             "name": zone.name,
-            "closure": closure_certificate(zone),
+            "closure": _certificate_from_closure(closure),
             "profile": zone_profile,
         })
     rows: dict[str, dict[str, int]] = {}

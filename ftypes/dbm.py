@@ -180,7 +180,11 @@ class Zone:
 
 
 def closure_certificate(zone: Zone) -> dict:
-    closure = zone.close()
+    return _certificate_from_closure(zone.close())
+
+
+def _certificate_from_closure(closure: Closure) -> dict:
+    """Serialize an invocation-local closure without sharing mutable evidence."""
     variables = list(closure.variables)
     potentials = {}
     for u in variables:
@@ -189,8 +193,8 @@ def closure_certificate(zone: Zone) -> dict:
     return {
         "variables": variables,
         "edges": [[e.u, e.v, e.c] for e in closure.edges],
-        "distance": closure.dist,
-        "paths": closure.paths,
+        "distance": [list(row) for row in closure.dist],
+        "paths": [[list(path) for path in row] for row in closure.paths],
         "potentials": potentials,
     }
 

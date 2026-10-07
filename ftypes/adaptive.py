@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Iterable
 
-from .dbm import closure_certificate
+from .dbm import Closure, _certificate_from_closure
 from .model import Case, ModelError
 from .terms import format_term, lineage
 
@@ -64,6 +64,13 @@ def _support_points(case: Case) -> list[dict[str, int]]:
 def _separator(left: Case, right: Case, reason: str, witness_r: dict[str, int], port_name: str) -> dict:
     right_closure = right.zones[0].close()
     left_closure = left.zones[0].close()
+    return _separator_from_closures(left, right, reason, witness_r, port_name,
+                                    left_closure, right_closure)
+
+
+def _separator_from_closures(left: Case, right: Case, reason: str, witness_r: dict[str, int],
+                             port_name: str, left_closure: Closure, right_closure: Closure) -> dict:
+    """Construct the same witness from this inference call's closed sides."""
     baseline = 1 + max(right_closure.bound(f"b_{s}", f"r_{q.name}")
                        for q in right.ports for s in lineage(right.port_map[port_name].term))
     time = max(witness_r[f"r_{p.name}"] for p in left.ports)
@@ -101,8 +108,8 @@ def infer_refinement(left: Case, right: Case) -> dict:
     left_closure = left.zones[0].close()
     right_closure = right.zones[0].close()
     ready = _readiness_variables(left)
-    left_cert = closure_certificate(left.zones[0])
-    right_cert = closure_certificate(right.zones[0])
+    left_cert = _certificate_from_closure(left_closure)
+    right_cert = _certificate_from_closure(right_closure)
 
     for i in ready:
         for j in ready:
@@ -121,7 +128,8 @@ def infer_refinement(left: Case, right: Case) -> dict:
                     "accepted": False,
                     "reason": "support",
                     "witness": {"i": i, "j": j, "left_bound": dl, "right_bound": dr, "readiness": readiness},
-                    "separator": _separator(left, right, "support", readiness, port),
+                    "separator": _separator_from_closures(left, right, "support", readiness, port,
+                                                           left_closure, right_closure),
                 }
 
     covers: dict[str, dict[str, str]] = defaultdict(dict)
@@ -160,7 +168,8 @@ def infer_refinement(left: Case, right: Case) -> dict:
                         "left_k": _conditional_k(left, left_closure, port.name, readiness),
                         "right_k": _conditional_k(right, right_closure, port.name, readiness),
                     },
-                    "separator": _separator(left, right, "row-cover", readiness, port.name),
+                    "separator": _separator_from_closures(left, right, "row-cover", readiness, port.name,
+                                                           left_closure, right_closure),
                 }
             covers[port.name][source] = chosen
     return {

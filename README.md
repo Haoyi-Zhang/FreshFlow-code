@@ -24,9 +24,11 @@ From the extracted repository root:
 python reproduce.py --out reproduced
 ```
 
-The command runs 73 unit-test methods (with additional mutation and identifier subcases) and four deterministic campaigns through `run_bounded.py`, then compares every regenerated scientific JSON/JSONL value with `results/`. Only the environment-dependent `measurements` fields inside campaign summaries are ignored. The report is `reproduced/reproduction.json`; success means `"status": "pass"`. Use a fresh output directory; an existing directory is never deleted automatically. The shipped resource records belong to the prior 66-method run; they are not timings of the expanded suite.
+The command runs 79 unit-test methods (with additional mutation and identifier subcases) and four deterministic campaigns through `run_bounded.py`, then compares every regenerated scientific JSON/JSONL value with `results/`. Only the environment-dependent `measurements` fields inside campaign summaries are ignored. The report is `reproduced/reproduction.json`; success means `"status": "pass"`. Use a fresh output directory; an existing directory is never deleted automatically. The shipped resource records belong to the prior 66-method run; they are not timings of the expanded suite.
 
-A current Ubuntu 24.04/Python 3.12.14 execution passes all 73 methods and all four campaigns. The 14 scientific files (4,415 JSONL records) match the retained values, and both generated manuscript tables match bytewise. Current measurements and the actual test footer are in `results/measurements/current-linux/`; they do not replace the historical resource files. Each command is bounded to one core, 3 GiB address space, 40 CPU seconds and 45 wall seconds.
+The retained Ubuntu 24.04/Python 3.12.14 execution passes its 73 methods and all four campaigns. The 14 scientific files (4,415 JSONL records) match the retained values, and both generated manuscript tables match bytewise. That run's measurements and actual test footer are in `results/measurements/current-linux/`; they do not replace the historical resource files or measure the 79-method suite. Each command is bounded to one core, 3 GiB address space, 40 CPU seconds and 45 wall seconds.
+
+Six portable closure-reuse regressions add literal raw-bound and delay-product references, complete closure evidence checks, rejection-controller executions, mutation/cap checks, and producer-call counters. They run under the same unittest discovery used by reproduction and scientific CI, or independently with `python -m unittest discover -s tests -p test_closure_reuse.py -v`. Their bounded comparisons do not establish a new general theorem, deployment result, or speedup.
 
 To regenerate the LaTeX data consumed by the manuscript:
 
@@ -103,7 +105,7 @@ Raw case specifications, certificates, oracles, prefixes, witnesses, and summari
 - `ftypes/adaptive_oracle.py` — tiny raw-bound full-valuation reference and actual separator branch interpreter.
 - `ftypes/residual.py` — observation validation and exact cut residualization.
 - `ftypes/*_experiments.py`, `ftypes/validation.py` — frozen deterministic campaigns and negative controls.
-- `tests/` — 73 unit-test methods and their named mutation/identifier subcases.
+- `tests/` — 79 unit-test methods and their named mutation/identifier subcases.
 - `proofs/theory.md` — complete handwritten theorem arguments and boundaries.
 - `claim_evidence_ledger.csv` — claim-to-proof/check/result mapping.
 - `external_resources.csv`, `literature.csv` — provenance and literature calibration records.
@@ -119,6 +121,8 @@ A successful command proves that the shipped program accepted its input under th
 The repository code and original documentation are released under the license in `LICENSE`. Bibliographic records and publisher templates retain their own terms and are not relicensed by this file.
 
 ## Certificate and implementation details
+
+Static and adaptive inference reuse each invocation's analysis closure for certificate serialization and adaptive rejection witnesses. Evidence lists are copied and no closure is cached across calls. The public `closure_certificate(zone)` wrapper still computes a fresh closure. Input ingestion, path tie-breaking, certificate ordering, independent replay, and finite oracle boundaries are unchanged.
 
 Clock identifiers are `b_<source>`, `r_<port>`, and `zero`; terms are strings `unit`, `src(a)`, or `pair(...,...)`. Static replay uses the input node-list order and has no separate topological-order or selected-predecessor field. The schema identifiers remain unchanged. Rejection separators now require a complete feasible attaining `left_valuation`, the emitted whole `payload_term`, `emission_time`, and `special_reachable_right`; older incomplete rejecting certificates do not replay. `branch_observable=true` refers to the readiness-only predicate even when it is unreachable on the right.
 
